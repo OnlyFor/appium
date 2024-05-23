@@ -8,9 +8,11 @@ import {
   EXT_SUBCOMMAND_UNINSTALL,
   EXT_SUBCOMMAND_UPDATE,
   EXT_SUBCOMMAND_DOCTOR,
+  SETUP_SUBCOMMAND,
 } from '../constants';
 import {INSTALL_TYPES} from '../extension/extension-config';
 import {toParserArgs} from '../schema/cli-args';
+import { SUBCOMMAND_BROWSER, SUBCOMMAND_DESKTOP, SUBCOMMAND_MOBILE } from './setup-command';
 const DRIVER_EXAMPLE = 'xcuitest';
 const PLUGIN_EXAMPLE = 'find_by_image';
 
@@ -53,7 +55,24 @@ const getExtensionArgs = _.memoize(function getExtensionArgs() {
       [EXT_SUBCOMMAND_DOCTOR]: makeDoctorArgs(type),
     };
   }
-  return /** @type {Record<ExtensionType, Record<import('appium/types').CliExtensionSubcommand,ArgumentDefinitions>>} */ (
+
+  extensionArgs[SETUP_SUBCOMMAND] = {
+    [SUBCOMMAND_MOBILE]: new Map([
+      [
+        ['--json'],
+        {
+          required: false,
+          default: false,
+          action: 'store_true',
+          help: 'Use JSON for output format',
+          dest: 'json',
+        },
+      ],
+    ]),
+    [SUBCOMMAND_BROWSER]: globalExtensionArgs,
+    [SUBCOMMAND_DESKTOP]: globalExtensionArgs,
+  }
+  return /** @type {Record<ExtensionType|'setup', Record<import('appium/types').CliExtensionSubcommand|import('appium/types').CliCommandSetupSubcommand,ArgumentDefinitions>>} */ (
     extensionArgs
   );
 });

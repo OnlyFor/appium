@@ -65,6 +65,11 @@ export function determinePlatformName() {
  * @returns {Promise<void>}
  */
 export async function runSetupCommand(appiumHome, preConfigArgs, driverConfig, pluginConfig) {
+  // @ts-ignore
+  const {json} = preConfigArgs;
+
+  console.log(json);
+
   switch (preConfigArgs.setupCommand) {
     case SUBCOMMAND_DESKTOP:
       await setupDesktopAppDrivers(driverConfig);

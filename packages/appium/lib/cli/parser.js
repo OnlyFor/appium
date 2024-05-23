@@ -24,6 +24,7 @@ import {
   getPresetDrivers,
   determinePlatformName
 } from './setup-command';
+import { log } from './utils';
 
 export const EXTRA_ARGS = 'extraArgs';
 
@@ -310,24 +311,37 @@ class ArgParser {
       dest: `setupCommand`,
     });
 
+    const extensionArgs = getExtensionArgs();
     const parserSpecs = [
       {
         command: SUBCOMMAND_MOBILE,
+        args: extensionArgs[SETUP_SUBCOMMAND].mobile,
         help: `The preset for mobile devices: ${_.join(getPresetDrivers(SUBCOMMAND_MOBILE), ',')}`
       },
       {
         command: SUBCOMMAND_BROWSER,
+        args: extensionArgs[SETUP_SUBCOMMAND].browser,
         help: `The preset for desktop browser drivers: ${_.join(getPresetDrivers(SUBCOMMAND_BROWSER), ',')}`
       },
       {
         command: SUBCOMMAND_DESKTOP,
+        args: extensionArgs[SETUP_SUBCOMMAND].desktop,
         help: `The preset for desktop application drivers: ${_.join(getPresetDrivers(SUBCOMMAND_DESKTOP), ',')}`
       },
     ];
 
-    for (const {command, help} of parserSpecs) {
+    for (const {command, args, help} of parserSpecs) {
       const parser = extSubParsers.add_parser(command, {help});
       ArgParser._patchExit(parser);
+
+      for (const [flagsOrNames, opts] of args) {
+        // add_argument mutates params so make sure to send in copies instead
+        if (flagsOrNames.length === 2) {
+          parser.add_argument(flagsOrNames[0], flagsOrNames[1], {...opts});
+        } else {
+          parser.add_argument(flagsOrNames[0], {...opts});
+        }
+      }
     }
   }
 }
